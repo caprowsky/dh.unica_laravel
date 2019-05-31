@@ -1,0 +1,73 @@
+version: "2"
+
+# Fai il boostrap del progetto così:
+# 1. modifica le impostazioni di connessione al db su setting.php
+# MYSQL_ROOT_PASSWORD: password
+# MYSQL_DATABASE: drupal
+# MYSQL_USER: drupal
+# MYSQL_PASSWORD: drupal
+# 2. Crea la dir /mariadb-init e inseiri lì il dump del db .sql
+# 3. avvia il docker compose
+# $ docker-compose up (verifica dai log che stia caricando il db oppure usa il parametro "-d" per eseguire docker-compose come demone)
+
+services:
+  db:
+    image: mysql:5.7.25
+    container_name: "labimus_db_mysql_1"
+    environment:
+      MYSQL_ROOT_PASSWORD: laravel
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+#    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # The simple way to override the mariadb config.
+    volumes:
+      - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
+#      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
+
+  php:
+    container_name: "labimus_php_1"
+    image: wodby/php:7.2-dev-4.11.10
+    environment:
+      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
+      PHP_FPM_USER: wodby
+      PHP_FPM_GROUP: wodby
+    volumes:
+      - ./:/var/www/html
+
+  apache:
+    image: wodby/apache:2.4
+    container_name: labimus_apache_1
+    depends_on:
+      - php
+    environment:
+      APACHE_LOG_LEVEL: debug
+      APACHE_BACKEND_HOST: php
+      APACHE_VHOST_PRESET: php
+      APACHE_DOCUMENT_ROOT: /var/www/html/public
+    volumes:
+      - ./:/var/www/html
+
+    ports:
+      - "8000:80"
+
+#  redis:
+#    container_name: "labimus_redis"
+#    image: wodby/redis:3.2-2.0.1
+
+#  pma:
+#    container_name: "labimus_pma"
+#    image: phpmyadmin/phpmyadmin
+#    environment:
+#      PMA_HOST: db
+#      PMA_USER: user
+#      PMA_PASSWORD: password
+#      PHP_UPLOAD_MAX_FILESIZE: 5G
+#      PHP_MAX_INPUT_VARS: 5G
+#    ports:
+#      - "7777:80"
+
+#  adminer:
+#    container_name: "labimus_adminer"
+#    image: adminer
+#    ports:
+#      - "8080:8080"
