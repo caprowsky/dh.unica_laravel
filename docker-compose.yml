@@ -13,7 +13,7 @@ version: "2"
 services:
   db:
     image: mysql:5.7.25
-    container_name: "labimus_db_mysql"
+    container_name: "labimus_db_mysql_1"
     environment:
       MYSQL_ROOT_PASSWORD: laravel
       MYSQL_DATABASE: laravel
@@ -25,7 +25,7 @@ services:
 #      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
 
   php:
-    container_name: "labimus_php"
+    container_name: "labimus_php_1"
     image: wodby/php:7.2-dev-4.11.10
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
@@ -36,7 +36,7 @@ services:
 
   apache:
     image: wodby/apache:2.4
-    container_name: labimus_apache
+    container_name: labimus_apache_1
     depends_on:
       - php
     environment:
