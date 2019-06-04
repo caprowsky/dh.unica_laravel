@@ -48,7 +48,7 @@ services:
       - ./:/var/www/html
 
     ports:
-      - "80"
+      - "8000:80"
 
 #  redis:
 #    container_name: "labimus_redis"
